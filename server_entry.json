@@ -1,0 +1,18 @@
+{
+  "name": "ProfileSizeTest",
+  "status": "active",
+  "developer": "christian.olgaard@gmail.com",
+  "author": "Panda88",
+  "purchaseOptions": [],
+  "type": "python3",
+  "path": "/usr/home/eisy-ai/generated_plugins/profile_size_test",
+  "executable": "main.py",
+  "runAs": "admin",
+  "install": "install.sh",
+  "desc": "Developer diagnostic: measures how large a dynamic JSON profile polyglot.updateJsonProfile() will accept, by sending synthetic profiles of increasing size and reporting where updates start to fail.",
+  "customParams": "{\"mode\": \"sweep\", \"sweep_start\": \"20\", \"sweep_end\": \"100\", \"sweep_step\": \"10\", \"small_kb\": \"15\", \"large_kb\": \"90\", \"profile_file\": \"\", \"include_st\": \"true\", \"run_on_start\": \"false\"}",
+  "discover": false,
+  "isyAccess": false,
+  "requireEisyui": false,
+  "nsid": "653f5039-61dc-4058-bbd4-a7c7654dbf18"
+}

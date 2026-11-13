@@ -1,0 +1,123 @@
+{
+  "editors": [
+    {
+      "id": "PST_RESULT",
+      "ranges": [
+        {
+          "uom": "25",
+          "subset": "0,1,2,3",
+          "names": {
+            "0": "Not Run",
+            "1": "All Passed",
+            "2": "Boundary Found",
+            "3": "All Failed"
+          }
+        }
+      ]
+    },
+    {
+      "id": "PST_KB",
+      "ranges": [
+        {
+          "uom": "56",
+          "min": 0,
+          "max": 4096,
+          "prec": 1
+        }
+      ]
+    },
+    {
+      "id": "PST_TIME",
+      "ranges": [
+        {
+          "uom": "151",
+          "min": 0,
+          "max": 9999999999,
+          "prec": 0
+        }
+      ]
+    },
+    {
+      "id": "ED_CONTROLLER_ST",
+      "ranges": [
+        {
+          "subset": "0,1",
+          "uom": "25",
+          "names": {
+            "0": "Not Connected",
+            "1": "Connected"
+          }
+        }
+      ]
+    }
+  ],
+  "nodedefs": [
+    {
+      "id": "controller",
+      "name": "Profile Size Test",
+      "icon": "GenericCtl",
+      "properties": [
+        {
+          "id": "ST",
+          "name": "Status",
+          "editor": "ED_CONTROLLER_ST"
+        }
+      ],
+      "cmds": {
+        "accepts": [
+          {
+            "id": "RUN_SWEEP",
+            "name": "Run Size Sweep",
+            "native": "false"
+          },
+          {
+            "id": "RUN_TWOTIER",
+            "name": "Run Two-Tier Test",
+            "native": "false"
+          }
+        ],
+        "sends": []
+      },
+      "links": {
+        "ctl": [],
+        "rsp": []
+      }
+    },
+    {
+      "id": "results",
+      "name": "Test Results",
+      "icon": "GenericCtl",
+      "properties": [
+        {
+          "id": "ST",
+          "name": "Result",
+          "editor": "PST_RESULT"
+        },
+        {
+          "id": "MIN_FAIL_KB",
+          "name": "Smallest Failure (KB)",
+          "editor": "PST_KB"
+        },
+        {
+          "id": "MAX_PASS_KB",
+          "name": "Largest Pass (KB)",
+          "editor": "PST_KB"
+        },
+        {
+          "id": "TIME",
+          "name": "Last Run",
+          "editor": "PST_TIME"
+        }
+      ],
+      "cmds": {
+        "accepts": [],
+        "sends": []
+      },
+      "links": {
+        "ctl": [],
+        "rsp": []
+      }
+    }
+  ],
+  "linkdefs": []
+}

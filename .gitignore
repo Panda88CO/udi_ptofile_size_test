@@ -1,0 +1,16 @@
+.venv/
+__pycache__/
+*.pyc
+persist/
+data/
+.iox_env
+# runtime / platform-issued files (added manually; contain keys or process state)
+*.key
+*.cert
+*.pem
+*.lock
+*.pid
+*.log
+logs/
+NSplugin_*
+.pytest_cache/
