@@ -11,7 +11,7 @@ import threading
 import time
 import types
 
-VERSION = "1.0.3"
+VERSION = "1.0.4"
 MAX_KB = 2048
 
 DEFAULT_PARAMS = {
