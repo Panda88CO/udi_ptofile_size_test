@@ -21,6 +21,7 @@ class Controller(udi_interface.Node):
         # Synchronization for __start()'s wait-for-configDone gate (see __configDoneHandler).
         self.configDone = threading.Condition()
         self.configDoneAlready = False
+        self.Parameters = udi_interface.Custom(self.poly, 'customparams')
         self.poly.setCustomParamsDoc("<h2>Profile Size Test - configuration</h2>\n<p>This plugin sends <b>synthetic dynamic profiles</b> of increasing size to PG3 with <code>updateJsonProfile</code> and reports which sizes were accepted and which failed. The full ASCII report is written to this plugin's log (Log &rarr; Real Time Log / Download Log). The <b>Test Results</b> child node shows the summary (Result, Smallest Failure, Largest Pass, Last Run).</p>\n<p><b>Warning:</b> every test pushes extra <code>NODE_nnn</code> nodedefs and <code>*_n</code> editors into this plugin's profile. Use a test system. A rejected or oversized profile may leave the Admin Console with unresolved labels or blank node panels.</p>\n<h3>Parameters</h3>\n<table>\n<tr><th>Key</th><th>Default</th><th>Meaning</th></tr>\n<tr><td><code>mode</code></td><td>sweep</td><td><code>sweep</code> = step from <code>sweep_start</code> to <code>sweep_end</code> KB. <code>test</code> = send one small and one large payload (<code>small_kb</code>, <code>large_kb</code>). <code>file</code> = send the JSON file named in <code>profile_file</code>.</td></tr>\n<tr><td><code>sweep_start</code></td><td>20</td><td>First payload size in KB (sweep mode).</td></tr>\n<tr><td><code>sweep_end</code></td><td>100</td><td>Last payload size in KB, inclusive (sweep mode). Maximum 2048.</td></tr>\n<tr><td><code>sweep_step</code></td><td>10</td><td>Increment in KB between payloads (sweep mode).</td></tr>\n<tr><td><code>small_kb</code></td><td>15</td><td>Size of the small payload (test mode).</td></tr>\n<tr><td><code>large_kb</code></td><td>90</td><td>Size of the large payload (test mode).</td></tr>\n<tr><td><code>profile_file</code></td><td>(empty)</td><td>Path to an exported profile JSON containing top-level <code>editors</code> and <code>nodedefs</code>. A relative path is resolved inside this plugin's <code>persist/</code> folder. Only used when <code>mode</code> is <code>file</code>.</td></tr>\n<tr><td><code>include_st</code></td><td>true</td><td>When <code>true</code>, each synthetic nodedef gets a valid <code>ST</code> property. Set <code>false</code> to reproduce the original generator output exactly (nodedefs without <code>ST</code>); note that a failure in that case may be caused by the profile's structure rather than its size.</td></tr>\n<tr><td><code>run_on_start</code></td><td>false</td><td>When <code>true</code>, the test runs automatically each time the plugin starts. When <code>false</code> it waits for a command or a configuration change.</td></tr>\n</table>\n<h3>Running a test</h3>\n<ul>\n<li>Change and save any parameter above (after the plugin has started): the test re-runs with the new values.</li>\n<li>Or use the Controller node's commands in the Admin Console: <b>Run Size Sweep</b> and <b>Run Two-Tier Test</b>.</li>\n</ul>\n<p>Invalid values are replaced by their defaults and a notice is shown on this page.</p>")
         # Additional node classes (results_node, profile_size_engine) -- construct and self.poly.addNode() them from discover()/start() once their real addresses/names are known (run candidate names/addresses through self.poly.getValidName()/getValidAddress() first).
         self.poly.subscribe(self.poly.START, self.__start, address)
@@ -147,8 +148,16 @@ class Controller(udi_interface.Node):
     def parameterHandler(self, params):
         import udi_interface
         LOGGER = udi_interface.LOGGER
-        from profile_size_engine import parse_params
-        parsed, warnings = parse_params(dict(params) if params else {})
+        from profile_size_engine import DEFAULT_PARAMS, parse_params
+        raw = dict(params) if params else {}
+        self.Parameters.load(raw)
+        for key, default_val in DEFAULT_PARAMS.items():
+            if key not in self.Parameters:
+                if isinstance(default_val, bool):
+                    self.Parameters[key] = 'true' if default_val else 'false'
+                else:
+                    self.Parameters[key] = str(default_val)
+        parsed, warnings = parse_params(raw)
         changed = parsed != getattr(self, '_pst_params', None)
         self._pst_params = parsed
         try:
