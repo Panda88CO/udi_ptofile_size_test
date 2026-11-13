@@ -25,6 +25,9 @@ def test_ids_unique():
     nd_ids = [n['id'] for n in p['nodedefs']]
     assert len(ed_ids) == len(set(ed_ids))
     assert len(nd_ids) == len(set(nd_ids))
+    for nd in p['nodedefs']:
+        for s in nd.get('cmds', {}).get('sends', []):
+            assert 'id' in s and 'name' in s and isinstance(s['name'], str)
 
 
 def test_include_st_flag():
@@ -84,6 +87,10 @@ def test_all_pass_and_all_fail_codes():
     def boom(p):
         raise RuntimeError('nope')
     eng.make_engine(boom, lambda m: None, on_done=lambda s, r: seen.update(s)).run(params)
+    assert seen['code'] == 3 and seen['max_pass_kb'] == 0
+
+    # Also verify that a dict with error: True is caught as a failure
+    eng.make_engine(lambda p: {'error': True, 'message': 'Validation failed'}, lambda m: None, on_done=lambda s, r: seen.update(s)).run(params)
     assert seen['code'] == 3 and seen['max_pass_kb'] == 0
 
 

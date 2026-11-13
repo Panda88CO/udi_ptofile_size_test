@@ -101,7 +101,11 @@ class Controller(udi_interface.Node):
         self._pst_node = node
 
         def updater(payload):
-            poly.updateJsonProfile(payload, {"waitResponse": True})
+            res = poly.updateJsonProfile(payload, {"waitResponse": True})
+            if res is False:
+                raise RuntimeError("updateJsonProfile returned False")
+            if isinstance(res, dict) and (res.get('error') or res.get('success') is False):
+                raise RuntimeError(res.get('message', 'Profile update rejected by Polyglot'))
 
         def log(msg):
             LOGGER.info(msg)

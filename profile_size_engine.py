@@ -11,7 +11,7 @@ import threading
 import time
 import types
 
-VERSION = "1.0.1"
+VERSION = "1.0.3"
 MAX_KB = 2048
 
 DEFAULT_PARAMS = {
@@ -146,7 +146,7 @@ def make_nodedef(index, editor_ids, include_st=True):
         "name": "Diagnostic Device Node %d" % index,
         "icon": "GenericCtl",
         "properties": props,
-        "cmds": {"accepts": accepts, "sends": [{"id": "DON"}, {"id": "DOF"}]},
+        "cmds": {"accepts": accepts, "sends": [{"id": "DON", "name": "DON"}, {"id": "DOF", "name": "DOF"}]},
         "links": {"ctl": [], "rsp": []},
     }
 
@@ -172,7 +172,7 @@ def generate_payload(target_kb, include_st=True):
             {"id": "GV1", "editor": "READY", "name": "Profile Status"},
             {"id": "TIME", "editor": "TIME", "name": "Last Update"},
         ],
-        "cmds": {"accepts": [], "sends": [{"id": "DON"}, {"id": "DOF"}]},
+        "cmds": {"accepts": [], "sends": [{"id": "DON", "name": "DON"}, {"id": "DOF", "name": "DOF"}]},
         "links": {"ctl": [], "rsp": []},
     }]
     payload = {"editors": editors, "nodedefs": nodedefs, "linkdefs": []}
@@ -289,7 +289,11 @@ def make_engine(updater, log, on_done=None, base_dir='.'):
         log("  -> %s: %s bytes, %d nodeDefs, %d editors" % (name, format(n, ','), nd, ed))
         start = time.time()
         try:
-            updater(payload)
+            res = updater(payload)
+            if res is False:
+                raise RuntimeError("updateJsonProfile returned False")
+            if isinstance(res, dict) and (res.get('error') or res.get('success') is False):
+                raise RuntimeError(res.get('message', 'Profile update rejected by Polyglot'))
             ok, msg = True, "accepted (%s bytes)" % format(n, ',')
         except Exception as e:
             ok, msg = False, "%s: %s" % (type(e).__name__, e)
